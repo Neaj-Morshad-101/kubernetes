@@ -11,12 +11,14 @@ import (
 
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/apimachinery/pkg/runtime/serializer"
 	"k8s.io/client-go/kubernetes"
+	clientsetscheme "k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/client-go/tools/remotecommand"
 )
+
+var parameterCodec = runtime.NewParameterCodec(clientsetscheme.Scheme)
 
 func main() {
 	var (
@@ -84,7 +86,7 @@ func copyBetweenPods(
 			Stdout:    stdout,
 			Stderr:    true,
 		}
-		req.VersionedParams(opts, parameterCodec())
+		req.VersionedParams(opts, parameterCodec)
 		return req, nil
 	}
 
@@ -129,13 +131,6 @@ func copyBetweenPods(
 		Stdout: os.Stdout,
 		Stderr: os.Stderr,
 	})
-}
-
-// parameterCodec returns a codec for versioned params
-func parameterCodec() runtime.ParameterCodec {
-	scheme := runtime.NewScheme()
-	corev1.AddToScheme(scheme)
-	return serializer.NewCodecFactory(scheme).ParameterCodec
 }
 
 // home returns the user home directory
