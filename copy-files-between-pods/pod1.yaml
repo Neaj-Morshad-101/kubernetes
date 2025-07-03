@@ -1,0 +1,15 @@
+kind: Pod
+metadata:
+  name: pod-src
+spec:
+  containers:
+  - name: src
+    image: busybox:1.34
+    command: ["sh", "-c", "sleep 3600"]
+    volumeMounts:
+    - name: files
+      mountPath: /data
+  volumes:
+  - name: files
+    configMap:
+      name: test-files
